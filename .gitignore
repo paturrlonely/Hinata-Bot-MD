@@ -1,0 +1,10 @@
+node_modules
+database.json
+BotSession
+package-lock.json
+harem.json
+Hinata-BotSession
+yarn.lock
+node-installer.msi
+git-installer.exe
+imagemagick-installer.exe
