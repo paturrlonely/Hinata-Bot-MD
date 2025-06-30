@@ -2,15 +2,21 @@ import { exec } from 'child_process';
 import util from 'util';
 const execPromise = util.promisify(exec);
 
-// 🧠 CONFIGURA AQUÍ TU REPO
+// 🧠 CONFIGURA AQUÍ TU REPO (solo para uso interno)
 const REPO_URL = 'https://github.com/TOKIO5025/Hinata-Bot-MD.git';
 const REPO_BRANCH = 'main';
 
 let handler = async (m) => {
-  try {
-    await m.reply(`🔄 Buscando actualizaciones desde:\n${REPO_URL} (${REPO_BRANCH})`);
+  // Verifica si el mensaje viene de ti
+  const allowedUser = '50248019799'; // Solo tú puedes usar este comando
+  if (m.sender.split('@')[0] !== allowedUser) {
+    return m.reply('❌ Este comando solo está disponible para mi creadora suprema 💖.');
+  }
 
-    // Borrar repositorio temporal si ya existe
+  try {
+    await m.reply('🔄 Buscando nuevas actualizaciones del sistema...');
+
+    // Eliminar carpeta temporal si ya existe
     await execPromise('rm -rf ./tmp-repo');
 
     // Clonar el repositorio en carpeta temporal
@@ -21,13 +27,11 @@ let handler = async (m) => {
 
     if (!diffOutput.trim()) {
       await execPromise('rm -rf ./tmp-repo');
-      return m.reply('✅ El bot ya está actualizado. No hay cambios detectados.');
+      return m.reply('✅ El bot ya está actualizado. No se encontraron cambios.');
     }
 
-    // Copiar archivos nuevos o modificados
+    // Copiar archivos modificados o nuevos
     await execPromise('cp -ru ./tmp-repo/* ./');
-
-    // Borrar el repositorio temporal
     await execPromise('rm -rf ./tmp-repo');
 
     // Generar resumen de cambios
