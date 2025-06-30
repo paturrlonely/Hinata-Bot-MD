@@ -1,24 +1,33 @@
 const handler = async (m, { conn }) => {
-  if (!m.quoted) return;
+  // Si no está respondiendo a nada, enviar mensaje de advertencia
+  if (!m.quoted) {
+    await conn.sendMessage(m.chat, {
+      text: '✋ Escribe *.get* respondiendo a un estado del grupo o a un estado reenviado de un contacto.',
+    }, { quoted: m });
+    return;
+  }
 
-  const quotedMsg = m.quoted;
-  const mtype = quotedMsg.mtype || '';
+  let targetMsg = m.quoted;
+  const mtype = targetMsg.mtype || '';
 
-  if (!['imageMessage', 'videoMessage', 'audioMessage'].includes(mtype)) return;
+  if (!['imageMessage', 'videoMessage', 'audioMessage'].includes(mtype)) {
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+    return await m.reply('⚠️ Este comando solo funciona con imágenes, videos o audios de estados.');
+  }
 
   try {
-    const media = await quotedMsg.download();
+    const media = await targetMsg.download();
 
     if (mtype === 'imageMessage') {
       await conn.sendMessage(m.sender, {
         image: media,
-        caption: '🖼️ Aquí tienes la copia del estado que respondiste.'
+        caption: '🖼️ Aquí tienes la copia del estado que solicitaste.'
       }, { quoted: m });
 
     } else if (mtype === 'videoMessage') {
       await conn.sendMessage(m.sender, {
         video: media,
-        caption: '🎥 Aquí tienes la copia del estado que respondiste.'
+        caption: '🎥 Aquí tienes la copia del estado que solicitaste.'
       }, { quoted: m });
 
     } else if (mtype === 'audioMessage') {
@@ -31,18 +40,19 @@ const handler = async (m, { conn }) => {
 
     if (m.isGroup) {
       await conn.sendMessage(m.chat, { 
-        text: `✅ @${m.sender.split('@')[0]}, te envié por privado el estado que respondiste.`, 
+        text: `✅ @${m.sender.split('@')[0]}, te mandé por privado el estado.`, 
         mentions: [m.sender]
       });
     }
 
-  } catch (error) {
-    console.error(error);
-    await conn.reply(m.chat, '⚠️ No pude obtener el estado que respondiste.', m);
+  } catch (e) {
+    console.error(e);
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+    await m.reply('⚠️ No pude descargar el estado. Asegúrate de que sea válido.');
   }
 };
 
-handler.help = ['get @tag'];
+handler.help = ['get'];
 handler.tags = ['tools'];
 handler.command = ['get', 'getstatu', 'robarestado'];
 
