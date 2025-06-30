@@ -1,37 +1,60 @@
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import util from 'util';
+const execPromise = util.promisify(exec);
 
-const handler = async (m, { conn, text }) => {
-try {
-const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''));
-let messager = stdout.toString()
-if (messager.includes('Already up to date.')) messager = ` 𝙔𝘼 𝙀𝙎𝙏𝘼 𝘼𝘾𝙏𝙐𝘼𝙇𝙄𝙕𝘼𝘿𝙊 𝘼 𝙇𝘼 𝙑𝙀𝙍𝙎𝙄𝙊́𝙉 𝙍𝙀𝘾𝙄𝙀𝙉𝙏𝙀.`
-if (messager.includes('Updating')) messager = `Actualizacion Exitosa ...\n` + stdout.toString()
-conn.reply(m.chat, messager, m);
-} catch {      
-try {    
-const status = execSync('git status --porcelain');
-if (status.length > 0) {
-const conflictedFiles = status
-.toString()
-.split('\n')
-.filter(line => line.trim() !== '')
-.map(line => {
-if (line.includes('.npm/') || line.includes('.cache/') || line.includes('tmp/') || line.includes('GataBotSession/') || line.includes('npm-debug.log')) {
-return null;
-}
-return '*→ ' + line.slice(3) + '*'})
-.filter(Boolean);
-if (conflictedFiles.length > 0) {
-const errorMessage = ` > *Se han encontrado cambios locales en los archivos del bot que entran en conficto con las nuevas actualizaciones del repositorio. para actualizar, reinstalar el bot o realizar las actualizaciones manualmente.*\n\n*\`ARCHIVO EN CONFLICTO :\`*\n\n${conflictedFiles.join('\n')}.*`
-await conn.reply(m.chat, errorMessage, m);  
-}}
-} catch (error) {
-console.error(error);
-if (error.message) {
-const errorMessage2 = `\n${fg}` + error.message;
-}
-await m.reply(`${fg}`) 
-}}};
-handler.command = /^(update|actualizar|gitpull)$/i;
-handler.rowner = true;
+// 🧠 CONFIGURA AQUÍ TU REPO
+const REPO_URL = 'https://github.com/TOKIO5025/Hinata-Bot-MD.git';
+const REPO_BRANCH = 'main';
+
+let handler = async (m) => {
+  try {
+    await m.reply(`🔄 Buscando actualizaciones desde:\n${REPO_URL} (${REPO_BRANCH})`);
+
+    // Borrar repositorio temporal si ya existe
+    await execPromise('rm -rf ./tmp-repo');
+
+    // Clonar el repositorio en carpeta temporal
+    await execPromise(`git clone --depth=1 --branch ${REPO_BRANCH} ${REPO_URL} ./tmp-repo`);
+
+    // Comparar diferencias entre versiones
+    const { stdout: diffOutput } = await execPromise(`diff -qr ./tmp-repo ./ | grep -vE ".git|node_modules" || true`);
+
+    if (!diffOutput.trim()) {
+      await execPromise('rm -rf ./tmp-repo');
+      return m.reply('✅ El bot ya está actualizado. No hay cambios detectados.');
+    }
+
+    // Copiar archivos nuevos o modificados
+    await execPromise('cp -ru ./tmp-repo/* ./');
+
+    // Borrar el repositorio temporal
+    await execPromise('rm -rf ./tmp-repo');
+
+    // Generar resumen de cambios
+    const resumen = diffOutput
+      .split('\n')
+      .filter(line => line.trim())
+      .map(line => {
+        if (line.startsWith('Files')) {
+          const partes = line.split(' and ');
+          return `📄 Modificado: ${partes[0].replace('Files ', '').trim()}`;
+        } else if (line.startsWith('Only in')) {
+          return `🆕 Nuevo archivo o carpeta: ${line.replace('Only in ', '').trim()}`;
+        } else {
+          return `📁 Otro cambio: ${line.trim()}`;
+        }
+      }).join('\n');
+
+    await m.reply(`✅ *Actualización completada*\n\n📋 *Cambios detectados:*\n${resumen}`);
+
+  } catch (e) {
+    console.error(e);
+    await m.reply('❌ *Error durante la actualización:*\n' + (e.message || e));
+  }
+};
+
+handler.help = ['update'];
+handler.tags = ['tools'];
+handler.command = /^update$/i;
+
 export default handler;
