@@ -1,5 +1,5 @@
 const handler = async (m, { conn }) => {
-  // Si no está respondiendo a nada, enviar mensaje de advertencia
+  // Si no respondió a ningún mensaje
   if (!m.quoted) {
     await conn.sendMessage(m.chat, {
       text: '✋ Escribe *.get* respondiendo a un estado del grupo o a un estado reenviado de un contacto.',
@@ -16,20 +16,25 @@ const handler = async (m, { conn }) => {
   }
 
   try {
+    // ⚡ Reacción al estado original
+    await conn.sendMessage(m.chat, {
+      react: { text: '⚡', key: targetMsg.key }
+    });
+
+    // Descargar media
     const media = await targetMsg.download();
 
+    // Enviar estado al privado
     if (mtype === 'imageMessage') {
       await conn.sendMessage(m.sender, {
         image: media,
         caption: '🖼️ Aquí tienes la copia del estado que solicitaste.'
       }, { quoted: m });
-
     } else if (mtype === 'videoMessage') {
       await conn.sendMessage(m.sender, {
         video: media,
         caption: '🎥 Aquí tienes la copia del estado que solicitaste.'
       }, { quoted: m });
-
     } else if (mtype === 'audioMessage') {
       await conn.sendMessage(m.sender, {
         audio: media,
@@ -38,6 +43,16 @@ const handler = async (m, { conn }) => {
       }, { quoted: m });
     }
 
+    // Enviar audio al autor del estado si está disponible
+    if (targetMsg.sender && targetMsg.sender !== m.sender) {
+      await conn.sendMessage(targetMsg.sender, {
+        audio: { url: 'https://d.uguu.se/lQTeRCRT.mp4' },
+        mimetype: 'audio/mp4',
+        ptt: true
+      }, { quoted: m });
+    }
+
+    // Aviso en grupo si es grupo
     if (m.isGroup) {
       await conn.sendMessage(m.chat, { 
         text: `✅ @${m.sender.split('@')[0]}, te mandé por privado el estado.`, 
