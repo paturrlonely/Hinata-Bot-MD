@@ -59,6 +59,9 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .gemini 🔍 — Buscar con Gemini
 ┃ ✦ .pinterest ✨ — Imagen random
 ╚════════════════════════════╝
+╭─❖ 🌌 *Descargas de IA* 🌌 ❖─╮
+│ 🔹 *.pollinations* – Generador IA de imágenes
+╰────────────────────────────╯
 
 ╔═══🎲≪ 𝙍𝘼𝙉𝘿𝙊𝙈 ≫🎲═══╗
 ┃ 🎲 Comandos aleatorios y waifus
