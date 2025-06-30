@@ -11,7 +11,7 @@ export async function before(m, { conn, groupMetadata }) {
   const usuario = `@${user.split('@')[0]}`;
   const subject = groupMetadata.subject;
   const descs = groupMetadata.desc || 'Descripción predeterminada del grupo.';
-  const pp = await conn.profilePictureUrl(user, 'image').catch(_ => 'https://files.catbox.moe/a5hq0g.jpg');
+  const pp = await conn.profilePictureUrl(user, 'image').catch(_ => 'https://o.uguu.se/NldcxMaY.jpg');
   const img = await (await fetch(pp)).buffer();
 
   // 🎉 BIENVENIDA
