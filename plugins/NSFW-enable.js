@@ -35,7 +35,7 @@ const handler = async (m, { conn, args, isGroup, isAdmin, isBotAdmin, command })
   }
 };
 
-handler.command = /^(enable|disable|activar|desacitvar)$/i;
+handler.command = /^(enable|disable|ativar|of)$/i;
 handler.tags = ['group', 'admin'];
 handler.help = ['enable nsfw', 'disable nsfw'];
 
