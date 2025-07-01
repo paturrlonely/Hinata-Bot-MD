@@ -1,51 +1,80 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'fs'
 
-// Ruta del archivo harem.json
-const haremFilePath = './harem.json';
+const charactersFilePath = './src/database/characters.json'
+const haremFilePath = './src/database/harem.json'
 
-// Función para cargar el archivo harem.json
-async function loadHarem() {
+async function loadCharacters() {
     try {
-        const data = await fs.readFile(haremFilePath, 'utf-8');
-        return JSON.parse(data); // Retornar el objeto completo
+        const data = await fs.readFile(charactersFilePath, 'utf-8')
+        return JSON.parse(data)
     } catch (error) {
-        throw new Error('No se pudo cargar el archivo harem.json.');
+        throw new Error('❀ No se pudo cargar el archivo characters.json.')
     }
 }
 
-// Definición del handler del comando 'harem'
-let handler = async (m, { conn }) => {
+async function loadHarem() {
     try {
-        const harem = await loadHarem();
-        
-        // Obtener el ID del usuario que ejecuta el comando
-        const userId = m.sender; // m.sender contiene el ID del usuario
+        const data = await fs.readFile(haremFilePath, 'utf-8')
+        return JSON.parse(data)
+    } catch (error) {
+        return []
+    }
+}
 
-        // Verificar si el usuario tiene personajes en su harem
-        const userHarem = harem[userId];
-        if (!userHarem || userHarem.length === 0) {
-            await conn.reply(m.chat, 'No tienes personajes reclamados en tu harem.', m);
-            return;
+let handler = async (m, { conn, args }) => {
+    try {
+        const characters = await loadCharacters()
+        const harem = await loadHarem()
+        let userId
+
+        if (m.quoted && m.quoted.sender) {
+            userId = m.quoted.sender
+        } else if (args[0] && args[0].startsWith('@')) {
+            userId = args[0].replace('@', '') + '@s.whatsapp.net'
+        } else {
+            userId = m.sender
         }
 
-        // Crear mensaje con la lista de personajes y los nuevos datos
-        let message = '✨ *Personajes en tu Harem:*\n';
-        userHarem.forEach((character, index) => {
-            message += `${index + 1}. ${character.name}\n`;
-            message += `   Situación Sentimental: ${character.relationship}\n`;
-            message += `   Origen: ${character.source}\n \n`;
-        });
+        const userCharacters = characters.filter(character => character.user === userId)
 
-        // Enviar el mensaje con la lista de personajes y la imagen personalizada
-        await conn.sendFile(m.chat, 'https://n.uguu.se/sfJplvTe.jpg', 'harem.jpg', message, m);
+        if (userCharacters.length === 0) {
+            await conn.reply(m.chat, '❀ No tiene personajes reclamados en tu harem.', m)
+            return
+        }
+
+        const page = parseInt(args[1]) || 1
+        const charactersPerPage = 50
+        const totalCharacters = userCharacters.length
+        const totalPages = Math.ceil(totalCharacters / charactersPerPage)
+        const startIndex = (page - 1) * charactersPerPage
+        const endIndex = Math.min(startIndex + charactersPerPage, totalCharacters)
+
+        if (page < 1 || page > totalPages) {
+            await conn.reply(m.chat, `❀ Página no válida. Hay un total de *${totalPages}* páginas.`, m)
+            return
+        }
+
+        let message = `✿ Personajes reclamados ✿\n`
+        message += `⌦ Usuario: @${userId.split('@')[0]}\n`
+        message += `♡ Personajes: *(${totalCharacters}):*\n\n`
+
+        for (let i = startIndex; i < endIndex; i++) {
+            const character = userCharacters[i]
+            message += `» *${character.name}* (*${character.value}*)\n`
+        }
+
+        message += `\n> ⌦ _Página *${page}* de *${totalPages}*_`
+
+        await conn.reply(m.chat, message, m, { mentions: [userId] })
     } catch (error) {
-        await conn.reply(m.chat, `Error al cargar el harem: ${error.message}`, m);
+        await conn.reply(m.chat, `✘ Error al cargar el harem: ${error.message}`, m)
     }
-};
+}
 
-// Configuración del comando
-handler.help = ['harem'];
-handler.tags = ['anime'];
-handler.command = /^(harem)$/i; // Comando "harem"
+handler.help = ['harem [@usuario] [pagina]']
+handler.tags = ['anime']
+handler.command = ['harem', 'claims', 'waifus']
+handler.group = true
 
-export default handler;
+export default handler
+                                  
