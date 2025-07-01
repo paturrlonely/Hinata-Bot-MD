@@ -57,6 +57,6 @@ const handler = async (m, { conn, text, participants, isAdmin, isBotAdmin }) => 
 };
 
 // 🛠️ Lista de comandos compatibles con este handler
-handler.command = handler.help = ['kick', 'ban', 'matar', 'violar', 'expulsar', 'sacar', 'murir'];
+handler.command = handler.help = ['kick', 'ban', 'v', 'bu', 'expulsar', 'sacar', 'murir'];
 
 export default handler;
