@@ -1,94 +1,72 @@
-import fetch from "node-fetch"
-import yts from 'yt-search'
-import axios from "axios"
-const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
+import fetch from 'node-fetch';
+import yts from 'yt-search';
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
+const encodedApi = "aHR0cHM6Ly9hcGkudnJlZGVuLndlYi5pZC9hcGkveXRtcDM=";
+const getApiUrl = () => Buffer.from(encodedApi, "base64").toString("utf-8");
+
+const isYoutubeLink = (text) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(text);
+
+const fetchWithRetries = async (url, maxRetries = 2) => {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data?.status === 200 && data.result?.download?.url) {
+        return data.result;
+      }
+    } catch (error) {
+      console.error(`Intento ${attempt + 1} fallido:`, error.message);
+    }
+  }
+  throw new Error("No se pudo obtener el audio después de varios intentos.");
+};
+
+let handler = async (m, { conn, text }) => {
+  if (!text?.trim()) {
+    await conn.sendMessage(m.chat, { react: { text: "❓", key: m.key } });
+    return conn.reply(m.chat, '*[ ℹ️ ] Ingresa el nombre o link de una canción.*\n\n*Ejemplo:* .ytmp3 El venao\n*Ejemplo:* .ytmp3 https://youtu.be/abc123', m);
+  }
+
   try {
-    if (!text.trim()) {
-      return conn.reply(m.chat, `❀ Por favor, ingresa el nombre de la música a descargar.`, m)
-    }
+    await conn.sendMessage(m.chat, { react: { text: "🕒", key: m.key } });
 
-let videoIdToFind = text.match(youtubeRegexID) || null
-let ytplay2 = await yts(videoIdToFind === null ? text : 'https://youtu.be/' + videoIdToFind[1])
+    let videoUrl, videoTitle;
 
-if (videoIdToFind) {
-const videoId = videoIdToFind[1]  
-ytplay2 = ytplay2.all.find(item => item.videoId === videoId) || ytplay2.videos.find(item => item.videoId === videoId)
-} 
-ytplay2 = ytplay2.all?.[0] || ytplay2.videos?.[0] || ytplay2  
-if (!ytplay2 || ytplay2.length == 0) {
-return m.reply('✧ No se encontraron resultados para tu búsqueda.')
-}
-let { title, thumbnail, timestamp, views, ago, url, author } = ytplay2
-title = title || 'no encontrado'
-thumbnail = thumbnail || 'no encontrado'
-timestamp = timestamp || 'no encontrado'
-views = views || 'no encontrado'
-ago = ago || 'no encontrado'
-url = url || 'no encontrado'
-author = author || 'no encontrado'
-    const vistas = formatViews(views)
-    const canal = author.name ? author.name : 'Desconocido'
-    const infoMessage = `「🕒」Descargando *<${title || 'Desconocido'}>*\n\n> ✧ Canal » *${canal}*\n> 👀 Vistas » *${vistas || 'Desconocido'}*\n> ⏳ Duración » *${timestamp || 'Desconocido'}*\n> 📍 Publicado » *${ago || 'Desconocido'}*\n> 🔗 Link » ${url}`
-    const thumb = (await conn.getFile(thumbnail))?.data
-    const JT = {
-      contextInfo: {
-        externalAdReply: {
-          title: botname,
-          body: dev,
-          mediaType: 1,
-          previewType: 0,
-          mediaUrl: url,
-          sourceUrl: url,
-          thumbnail: thumb,
-          renderLargerThumbnail: true,
-        },
-      },
-    }
-    await conn.reply(m.chat, infoMessage, m, JT)    
-    if (command === 'play' || command === 'yta' || command === 'ytmp3' || command === 'playaudio') {
-      try {
-        const api = await (await fetch(`https://api.vreden.my.id/api/ytmp3?url=${url}`)).json()
-        const resulta = api.result
-        const result = resulta.download.url    
-        if (!result) throw new Error('⚠ El enlace de audio no se generó correctamente.')
-        await conn.sendMessage(m.chat, { audio: { url: result }, fileName: `${api.result.title}.mp3`, mimetype: 'audio/mpeg' }, { quoted: m })
-      } catch (e) {
-        return conn.reply(m.chat, '⚠️ No se pudo enviar el audio. Esto puede deberse a que el archivo es demasiado pesado o a un error en la generación de la URL. Por favor, intenta nuevamente más tarde.', m)
-      }
-    } else if (command === 'play2' || command === 'ytv' || command === 'ytmp4' || command === 'mp4') {
-      try {
-        const response = await fetch(`https://api.neoxr.eu/api/youtube?url=${url}&type=video&quality=480p&apikey=GataDios`)
-        const json = await response.json()
-        await conn.sendFile(m.chat, json.data.url, json.title + '.mp4', title, m)
-      } catch (e) {
-        return conn.reply(m.chat, '⚠︎ No se pudo enviar el video. Esto puede deberse a que el archivo es demasiado pesado o a un error en la generación de la URL. Por favor, intenta nuevamente más tarde.', m)
-      }
+    if (isYoutubeLink(text.trim())) {
+      videoUrl = text.trim();
+      videoTitle = "audio"; // nombre temporal si no hay título
     } else {
-      return conn.reply(m.chat, '✧︎ Comando no reconocido.', m)
+      const search = await yts(text.trim());
+      const vid = search.videos[0];
+      if (!vid) throw '⚠️ No se encontraron resultados para esa búsqueda.';
+      videoUrl = vid.url;
+      videoTitle = vid.title;
     }
-  } catch (error) {
-    return m.reply(`⚠️ Ocurrió un error: ${error}`)
-  }
-}
-handler.command = handler.help = ['play', 'yta', 'ytmp3', 'play2', 'ytv', 'ytmp4', 'playaudio', 'mp4']
-handler.tags = ['descargas']
-handler.group = true
 
-export default handler
+    const apiUrl = `${getApiUrl()}?url=${encodeURIComponent(videoUrl)}`;
+    const result = await fetchWithRetries(apiUrl);
+    const audioUrl = result?.download?.url;
 
-function formatViews(views) {
-  if (views === undefined) {
-    return "No disponible"
-  }
+    if (!audioUrl) throw '❌ No se encontró una URL de descarga válida.';
 
-  if (views >= 1_000_000_000) {
-    return `${(views / 1_000_000_000).toFixed(1)}B (${views.toLocaleString()})`
-  } else if (views >= 1_000_000) {
-    return `${(views / 1_000_000).toFixed(1)}M (${views.toLocaleString()})`
-  } else if (views >= 1_000) {
-    return `${(views / 1_000).toFixed(1)}k (${views.toLocaleString()})`
+    await conn.sendMessage(m.chat, {
+      audio: { url: audioUrl },
+      mimetype: 'audio/mpeg',
+      fileName: `${videoTitle}.mp3`,
+      ptt: false
+    }, { quoted: m });
+
+    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+
+  } catch (e) {
+    console.error(e);
+    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+    await conn.reply(m.chat, `❌ Error al procesar:\n${e.message || e}`, m);
   }
-  return views.toString()
-}
+};
+
+handler.command = ['ytmp3'];
+handler.help = ['ytmp3 <texto|link>'];
+handler.tags = ['descargas'];
+
+export default handler;
