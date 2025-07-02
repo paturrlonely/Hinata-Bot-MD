@@ -11,7 +11,7 @@ const formatVideo = ["360", "480", "720", "1080", "1440", "4k"];
 const ddownr = {
   download: async (url, format) => {
     if (!formatAudio.includes(format) && !formatVideo.includes(format)) {
-      throw new Error("⚠️ Pika Pika~ Ese formato no es compatible.");
+      throw new Error("⚠️ OO ~ Ese formato no es compatible.");
     }
 
     const config = {
@@ -29,7 +29,7 @@ const ddownr = {
         const downloadUrl = await ddownr.cekProgress(id);
         return { id, title, image: info.image, downloadUrl };
       } else {
-        throw new Error("⚠️ Hmm~ ese formato no es compatible, b-baka~ 🙈💕  ¿Quieres que me enoje contigo? Intenta con otro, ¿sí? UwU.");
+        throw new Error("⛔ HINATA-BOT no pudo encontrar los detalles del video.");
       }
     } catch (error) {
       console.error("❌ Error:", error);
@@ -65,13 +65,13 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   await m.react('⚡️');
 
   if (!text.trim()) {
-    return conn.reply(m.chat, "*Ｏ(≧∇≦)Ｏ🧃* *Hinata-Bot* | Nee~ dime el nombre de la canción, b-baka~ 🙈💕  ¡No leeré tu mente, eh! Así que habla clarito, nya~ 🎶💗!", m, rcanal);
+    return conn.reply(m.chat, "*Ｏ(≧∇≦)Ｏ🧃* *Hinata-Bot* | Nee~ dime el nombre de la canción, b-baka~ 🙈💕  ¡No leeré tu mente, eh! Así que habla clarito, nya~ 🎶", m, rcanal);
   }
 
   try {
     const search = await yts(text);
     if (!search.all.length) {
-      return m.reply("*(>_<)🧃* Aww... no encontré nada con ese nombre~  ¿Segura que lo escribiste bien? ¡Vuelve a intentarlo, ne~! ✨🥺🎶");
+      return m.reply("*(>_<)🧃* Aww... no encontré nada con ese nombre~  ¿Segura que lo escribiste bien? ¡Vuelve a intentarlo, ne~! ✨🥺🎶...");
     }
 
     const videoInfo = search.all[0];
@@ -185,4 +185,4 @@ function formatViews(views) {
   return views >= 1000
     ? (views / 1000).toFixed(1) + "k (" + views.toLocaleString() + ")"
     : views.toString();
-}
+      }
