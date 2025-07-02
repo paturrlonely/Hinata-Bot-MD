@@ -1,39 +1,48 @@
-import fetch from 'node-fetch';
+import fetch from 'node-fetch'
+import sharp from 'sharp'
+import { addExif } from '../lib/sticker.js'
 
-const handler = async (m, { conn, args, usedPrefix, command }) => {
-  if (!args[0]) return m.reply(`📌 Usa el comando así:\n${usedPrefix + command} <texto>\n\nEjemplo:\n${usedPrefix + command} naruto`);
-
-  const query = args.join(' ');
-  const url = `https://api.sylphy.xyz/stickerly/search?q=${encodeURIComponent(query)}&limit=20`;
+let handler = async (m, { conn, text, command }) => {
+  if (!text) return m.reply(`✳️ Escribe una palabra para buscar stickers.\n\nEjemplo:\n*${command} gato*`)
 
   try {
-    const res = await fetch(url);
-    const json = await res.json();
+    const res = await fetch(`https://opendrip-api.onrender.com/api/sticker?q=${encodeURIComponent(text)}`)
+    if (!res.ok) throw `❌ No se pudo conectar con la API. Código HTTP: ${res.status}`
 
-    if (!json || !json.results || json.results.length === 0) {
-      return m.reply('❌ No encontré stickers con ese nombre.');
+    const data = await res.json()
+    if (!data.estado || !Array.isArray(data.resultados)) throw `⚠️ Respuesta inválida de la API.`
+
+    const stickers = []
+
+    for (let s of data.resultados) {
+      const url = s.thumbnail
+      if (!url || !url.startsWith('http')) continue
+
+      const imgBuffer = await fetch(url).then(res => res.buffer())
+
+      const webpBuffer = await sharp(imgBuffer)
+        .webp({ lossless: true })
+        .toBuffer()
+
+      const stickerBuffer = await addExif(webpBuffer, text, 'NEME BOT')
+
+      stickers.push({ sticker: stickerBuffer })
+      if (stickers.length >= 5) break // ENVÍA SOLO 5 STICKERS ATTT DEYLIN 
     }
 
-    const pack = json.results[Math.floor(Math.random() * json.results.length)];
-    const { name, author, thumbnail, stickers } = pack;
+    if (!stickers.length) throw '⚠️ No se encontraron stickers válidos.'
 
-    let text = `✨ *Resultado encontrado:*\n📦 *Nombre:* ${name}\n👤 *Autor:* ${author}\n📎 *Stickers disponibles:* ${stickers.length}`;
+    await m.reply(`🧩 *Paquete de stickers encontrados para:* ${text}`)
+    await conn.sendAlbumMessage(m.chat, stickers, m)
 
-    // Envía miniatura con datos
-    await conn.sendMessage(m.chat, {
-      image: { url: thumbnail },
-      caption: text,
-      buttons: [
-        { buttonId: `.stickerpack ${pack.id}`, buttonText: { displayText: '🔍 Ver Stickers' }, type: 1 },
-      ],
-      footer: '🌟 Stickerly API',
-    }, { quoted: m });
-
-  } catch (e) {
-    console.error(e);
-    m.reply('⚠️ Error al buscar stickers. Intenta más tarde.');
+  } catch (err) {
+    let msg = typeof err === 'string' ? err : (err.message || JSON.stringify(err))
+    m.reply(`❌ Ocurrió un error:\n\n${msg}`)
   }
-};
+}
 
-handler.command = /^stickerly$/i;
-export default handler;
+handler.command = ['stickerpack', 'flasticker']
+handler.help = ['stickerpack <palabra>']
+handler.tags = ['sticker']
+
+export default handler
