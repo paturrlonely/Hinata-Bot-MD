@@ -29,7 +29,7 @@ const ddownr = {
         const downloadUrl = await ddownr.cekProgress(id);
         return { id, title, image: info.image, downloadUrl };
       } else {
-        throw new Error("⛔ Pikachu no pudo encontrar los detalles del video.");
+        throw new Error("⚠️ Hmm~ ese formato no es compatible, b-baka~ 🙈💕  ¿Quieres que me enoje contigo? Intenta con otro, ¿sí? UwU.");
       }
     } catch (error) {
       console.error("❌ Error:", error);
@@ -65,13 +65,13 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   await m.react('⚡️');
 
   if (!text.trim()) {
-    return conn.reply(m.chat, "*Ｏ(≧∇≦)Ｏ🧃* *Pikachu-Bot* | Dime el nombre de la canción que estás buscando, ¡Pika!", m, rcanal);
+    return conn.reply(m.chat, "*Ｏ(≧∇≦)Ｏ🧃* *Hinata-Bot* | Nee~ dime el nombre de la canción, b-baka~ 🙈💕  ¡No leeré tu mente, eh! Así que habla clarito, nya~ 🎶💗!", m, rcanal);
   }
 
   try {
     const search = await yts(text);
     if (!search.all.length) {
-      return m.reply("*(>_<)🧃* Pikachu no encontró nada con ese nombre...");
+      return m.reply("*(>_<)🧃* Aww... no encontré nada con ese nombre~  ¿Segura que lo escribiste bien? ¡Vuelve a intentarlo, ne~! ✨🥺🎶");
     }
 
     const videoInfo = search.all[0];
@@ -80,18 +80,18 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const thumb = (await conn.getFile(thumbnail))?.data;
 
     const infoMessage = `
-    ╔═════ ∘◦ 🐭 ⚡ ◦∘ ═════╗
-        *ＰＩＫＡＣＨＵ-ＢＯＴ*
-    ╚═════ ∘◦ ⚡ 🐭 ◦∘ ═════╝
+    ╔═════ ∘◦ 💖🌸 ◦∘ ═════╗
+        *ＨＩＮＡＴＡ-ＢＯＴ*
+    ╚═════ ∘◦ 🌸💖 ◦∘ ═════╝
 
-> 🎵 *Título:* *${title}*
-> 🎬 *Duración:* ${timestamp}
-> 🎤 *Canal:* ${(videoInfo.author?.name) || "Desconocido"}
-> 👀 *Vistas:* ${vistas}
-> 📅 *Publicado:* ${ago}
+> 🎵 *Título:* *${title}*  
+> 🕒 *Duración:* ${timestamp}  
+> 🎤 *Canal:* ${(videoInfo.author?.name) || "Desconocido"}  
+> 👀 *Vistas:* ${vistas}  
+> 📅 *Publicado:* ${ago}  
 > 🔗 *Enlace:* ${url}
 
-∘◦ ⚡ Descargado... ⚡ ◦∘
+∘◦ ✨ ¡Descargado con amorcito~! ✨ ◦∘
 `;
 
   
@@ -139,7 +139,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         video: { url: downloadUrl },
         fileName: `${title}.mp4`,
         mimetype: "video/mp4",
-        caption: "🎬 Aquí tienes tu video, descargado por *Pikachu-Bot MD* ⚡",
+        caption: "🎬 Aquí tienes tu video, descargadito por *Hinata-Bot MD*~ 💖✨  ¡Hecho con amor para ti, ne~! UwU 💾🌸",
         thumbnail: thumb,
         contextInfo: {
           externalAdReply: { 
@@ -164,7 +164,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 }
 
       if (!success) {
-        return m.reply("❌ Pikachu no pudo encontrar un enlace válido para descargar.");
+        return m.reply("❌ Uu~ no pude encontrar un enlace válido para descargar... ¿Estás tratando de hacerme quedar mal? 😤 Intenta con otro, onegai~ 🥺✨.");
       }
     }
 
