@@ -132,6 +132,7 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .subirver — Sube contenido como "ver una vez" 🔁
 ┃ ✦ .rpf — Roba foto de perfil Del usuario
 ┃ ✦ .rpf2 — Roba foto de perfil Del usuario y nombre 
+┃ ✦ .sit -descarga sitios web de mp4 o busca información de sitios
 ╚═════════════════════════╝
 
 ╔════ ≪ ✨ ≫ ════╗
