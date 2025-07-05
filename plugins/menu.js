@@ -60,7 +60,8 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .pinterest ✨ — Imagen random
 ╚════════════════════════════╝
 ╭─❖ 🌌 *Descargas de IA* 🌌 ❖─╮
-│ 🔹 *.pollinations* – Generador IA de imágenes
+│ 🔹 .pollinations – Generador IA de imágenes
+│ 🔹 .imgia -Genera imagenes de cualquier nombre 
 ╰────────────────────────────╯
 
 ╔═══🎲≪ 𝙍𝘼𝙉𝘿𝙊𝙈 ≫🎲═══╗
