@@ -58,6 +58,8 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .ping 📍 — Latencia del bot
 ┃ ✦ .gemini 🔍 — Buscar con Gemini
 ┃ ✦ .pinterest ✨ — Imagen random
+┃ ✦ .promote 💥 _ pone a un usuario de admin👑
+┃ ✦ .quitaradmin ⚡_ quita a alguien de admin
 ╚════════════════════════════╝
 ╭─❖ 🌌 *Descargas de IA* 🌌 ❖─╮
 │ 🔹 .pollinations – Generador IA de imágenes
