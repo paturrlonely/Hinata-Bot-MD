@@ -136,6 +136,7 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .rpf — Roba foto de perfil Del usuario
 ┃ ✦ .rpf2 — Roba foto de perfil Del usuario y nombre 
 ┃ ✦ .sit -descarga sitios web de mp4 o busca información de sitios
+┃ ✦ .gettext -se reivia un mensaje si tu lo respondes
 ╚═════════════════════════╝
 
 ╔════ ≪ ✨ ≫ ════╗
@@ -143,6 +144,7 @@ let handler = async (m, { conn }) => {
 │❀ .update ⭕
 │❀ .dsowner ➩ .purgar 🗑️
 │❀ .join 💎
+│❀ .salir 
 ╚════ ≪ ✨ ≫ ════╝
 
 > ${copy} Hecho con mucho amor por ${dev}
