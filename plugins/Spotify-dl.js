@@ -1,50 +1,58 @@
-import fetch from 'node-fetch';
-import fs from 'fs';
-import { tmpdir } from 'os';
-import path from 'path';
+/* Hecho por Angel Brou mejorado por Deylin */
 
-const handler = async (m, { text, conn, command }) => {
-  if (!text) {
-    return conn.reply(m.chat, 'Por favor, proporciona un enlace de Spotify.', m);
-  }
+import fetch from "node-fetch";
+import yts from "yt-search";
 
-  const urlRegex = /^(https?:\/\/)?(www\.)?(open\.)?spotify\.com\/.+$/i;
-  if (!urlRegex.test(text)) {
-    return conn.reply(m.chat, 'El enlace proporcionado no es válido. Asegúrate de que sea un enlace de Spotify.', m);
-  }
+let handler = async (m, { conn, text }) => {
+  if (!text) return conn.reply(m.chat, `⚡ Por favor, ingresa el nombre de una canción de Spotify.`, m, fake);
+
+  await m.react('🕒');
+  conn.reply(m.chat, `*🎧 Buscando tu canción en Spotify...*`, m, fake);
 
   try {
-    const apiUrl = `https://restapi.apibotwa.biz.id/api/spotify?url=${encodeURIComponent(text)}`;
-    const response = await fetch(apiUrl);
-    const json = await response.json();
+    let res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
+    let gyh = await res.json();
 
-    if (json.status === 200 && json.data?.response) {
-      const downloadUrl = json.data.response;
-      const filePath = path.join(tmpdir(), `${Date.now()}.mp3`);
+    if (!gyh.result || !gyh.result.downloadUrl) throw '❌ No se encontró ninguna canción.';
 
-      // Descargar el archivo de audio
-      const audioResponse = await fetch(downloadUrl);
-      const fileStream = fs.createWriteStream(filePath);
-      await new Promise((resolve, reject) => {
-        audioResponse.body.pipe(fileStream);
-        audioResponse.body.on('error', reject);
-        fileStream.on('finish', resolve);
-      });
+    
+    const search = await yts(text);
+    if (!search.videos || search.videos.length === 0) throw '❌ No se encontró un video relacionado.';
 
-      // Enviar el archivo de audio
-      await conn.sendMessage(m.chat, { audio: fs.readFileSync(filePath), mimetype: 'audio/mp4' }, { quoted: m });
+    const videoInfo = search.videos[0];
+    const { title, thumbnail, timestamp: duration, views, ago, url } = videoInfo;
 
-      // Eliminar el archivo temporal
-      fs.unlinkSync(filePath);
-    } else {
-      conn.reply(m.chat, '❌ Hubo un problema al obtener el enlace de descarga. Intenta de nuevo más tarde.', m);
-    }
-  } catch (error) {
-    console.error(error);
-    conn.reply(m.chat, '❌ Ocurrió un error al procesar tu solicitud. Intenta nuevamente.', m);
+    const doc = {
+      audio: { url: gyh.result.downloadUrl },
+      mimetype: 'audio/mpeg',
+      fileName: `${title}.mp3`,
+      contextInfo: {
+        externalAdReply: {
+          showAdAttribution: true,
+          mediaType: 2,
+          mediaUrl: url,
+          title: title,
+          body: `Duración: ${duration} | Reproducciones: ${views.toLocaleString()}`,
+          sourceUrl: url,
+          thumbnailUrl: thumbnail || "https://h.uguu.se/gwCZoshl.jpg",
+          renderLargerThumbnail: true
+        }
+      }
+    };
+
+    await conn.sendMessage(m.chat, doc, { quoted: m });
+    await m.react('✅');
+
+  } catch (e) {
+    console.error(e);
+    await m.react('❌');
+    conn.reply(m.chat, '🚫 Hubo un error al buscar la canción.', m, fake);
   }
 };
 
-handler.command = ['sp', 'spotify'];
+handler.help = ['spotify *<texto>*'];
+handler.tags = ['descargas'];
+handler.command = ['spotify'];
+handler.register = true
 
 export default handler;
