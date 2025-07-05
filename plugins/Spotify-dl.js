@@ -1,10 +1,23 @@
-/* Hecho por Angel Brou mejorado por Deylin */
+/* 
+  Hecho por Angel Brou, mejorado por Deylin 
+  Adaptado y actualizado por TOKIO5025
+  GitHub: https://github.com/TOKIO5025 
+*/
 
 import fetch from "node-fetch";
 import yts from "yt-search";
 
-let handler = async (m, { conn, text }) => {
-  if (!text) return conn.reply(m.chat, `⚡ Por favor, ingresa el nombre de una canción de Spotify.`, m, fake);
+let handler = async (m, { conn, text, isROwner, isPrems }) => {
+  const fake = { quoted: m };
+
+  // Verificación r.canal
+  if (!global.db.data.chats[m.chat].canal && !isROwner && !isPrems) {
+    return conn.reply(m.chat, '❌ Este comando solo está disponible en canales autorizados.\nActívalo con: *.rcanal on*', m);
+  }
+
+  if (!text) {
+    return conn.reply(m.chat, `⚡ Por favor, ingresa el nombre de una canción de Spotify.`, m, fake);
+  }
 
   await m.react('🕒');
   conn.reply(m.chat, `*🎧 Buscando tu canción en Spotify...*`, m, fake);
@@ -15,12 +28,11 @@ let handler = async (m, { conn, text }) => {
 
     if (!gyh.result || !gyh.result.downloadUrl) throw '❌ No se encontró ninguna canción.';
 
-    
     const search = await yts(text);
     if (!search.videos || search.videos.length === 0) throw '❌ No se encontró un video relacionado.';
 
     const videoInfo = search.videos[0];
-    const { title, thumbnail, timestamp: duration, views, ago, url } = videoInfo;
+    const { title, thumbnail, timestamp: duration, views, url } = videoInfo;
 
     const doc = {
       audio: { url: gyh.result.downloadUrl },
@@ -53,6 +65,7 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['spotify *<texto>*'];
 handler.tags = ['descargas'];
 handler.command = ['spotify'];
-handler.register = true
+handler.register = true;
+handler.canal = true; // <-- r.canal activado
 
 export default handler;
