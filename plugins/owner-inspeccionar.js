@@ -1,3 +1,7 @@
+// Código adaptado por https://github.com/GataNina-Li
+// Código compatible con canales y comunidades de WhatsApp 
+// También encontrarás código para comandos enfocados para canales de WhatsApp
+
 import { getUrlFromDirectPath } from "@whiskeysockets/baileys"
 import _ from "lodash"
 import axios from 'axios' 
@@ -398,5 +402,4 @@ ch = await conn.newsletterMetadata("invite", ch).then(data => data.id).catch(e =
 try {
 const chtitle = await conn.newsletterMetadata(ch.includes("@newsletter") ? "jid" : "invite", ch.includes("@newsletter") ? ch : channelUrl).then(data => data.name).catch(e => null)
 await conn.newsletterReactionMode(ch, mode)
-// await conn.reply(m.chat, `${emoji} El bot ha establecido el modo de reacciones como \`"${mode}"\` para el canal *${chtitle}*`, m)
-await conn.sendMessage(ch, { text: `${emoji} ${botname} ha establecido el modo de reacciones como \`"${mode}"\` para el canal *${c
+// await conn.reply(m.chat, `${emoji} El bot ha establecido el modo d
