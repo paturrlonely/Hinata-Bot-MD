@@ -611,5 +611,3 @@ caption += `- *${translatedKey}:*\n${displayValue}\n\n`
 }})
 return caption.trim()
 }
-
-//hola
