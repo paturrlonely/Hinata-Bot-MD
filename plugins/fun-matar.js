@@ -1,37 +1,54 @@
-import axios from 'axios';
+//Codígo creado por Destroy wa.me/584120346669
+
+import fs from 'fs';
+import path from 'path';
 
 let handler = async (m, { conn, usedPrefix }) => {
     let who;
-    if (m.isGroup) who = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : false;
-    else who = m.chat;
-    if (!who) throw 'Etiqueta o menciona a alguien';
 
-    let user = global.db.data.users[who];
+    if (m.mentionedJid.length > 0) {
+        who = m.mentionedJid[0];
+    } else if (m.quoted) {
+        who = m.quoted.sender;
+    } else {
+        who = m.sender;
+    }
+
     let name = conn.getName(who);
     let name2 = conn.getName(m.sender);
-    m.react('🤗');
-    let str = `\`${name2}\` mato a \`${name}\``.trim();
+    m.react('🗡️');
+
+    let str;
+    if (m.mentionedJid.length > 0) {
+        str = `\`${name2}\` *mato a* \`${name || who}\` *( ⚆ _ ⚆ )*.`; // Usamos nombre agendado o número si no está agendado
+    } else if (m.quoted) {
+        str = `\`${name2}\` *mato a* \`${name || who}\`.`;
+    } else {
+        str = `\`${name2}\` *se mató a sí mismo ( ⚆ _ ⚆ ).*`.trim();
+    }
 
     if (m.isGroup) {
-        try {
-            // Obtener el archivo JSON desde GitHub
-            const response = await axios.get('https://raw.githubusercontent.com/Elpapiema/Adiciones-para-AlyaBot-RaphtaliaBot-/refs/heads/main/video_json/SFW/matar.json');
-            const videos = response.data.videos;
+        let pp = 'https://qu.ax/GQLO.mp4';
+        let pp2 = 'https://qu.ax/bzFY.mp4';
+        let pp3 = 'https://qu.ax/OQFE.mp4';
+        let pp4 = 'https://qu.ax/GQLO.mp4';
+        let pp5 = 'https://qu.ax/GssX.mp4';
+        let pp6 = 'https://qu.ax/NeQYU.mp4';
+        let pp7 = 'https://qu.ax/ypqXb.mp4';
+        let pp8 = 'https://qu.ax/rxME.mp4';
+        let pp9 = 'https://qu.ax/mNLhE.mp4';
+        let pp10 = 'https://qu.ax/WVjPF.mp4';
 
-            // Seleccionar un video aleatorio
-            const video = videos[Math.floor(Math.random() * videos.length)];
+        const videos = [pp, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9, pp10];
+        const video = videos[Math.floor(Math.random() * videos.length)];
 
-            // Enviar el video
-            conn.sendMessage(m.chat, { video: { url: video }, gifPlayback: true, caption: str, mentions: [m.sender] });
-        } catch (error) {
-            console.error('Error al obtener los videos:', error);
-            m.reply('Hubo un error al obtener los videos.');
-        }
+        let mentions = [who];
+        conn.sendMessage(m.chat, { video: { url: video }, gifPlayback: true, caption: str, mentions }, { quoted: m });
     }
-};
+}
 
-handler.help = ['matar @tag'];
-handler.tags = ['fun'];
+handler.help = ['kill/matar @tag'];
+handler.tags = ['emox'];
 handler.command = ['kill','matar'];
 handler.group = true;
 
