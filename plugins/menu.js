@@ -126,6 +126,7 @@ let handler = async (m, { conn }) => {
 ┃ ♡ .dormir 🛌🏻 — Zzz... durmiendo~
 ┃ ♡ .smoke 🚬 — Fumando con estilo
 ┃ ♡ .paja 🍆 — 🔞 [reacción subida de tono]
+┃ ♡ .top  💥 — 🔞 [menciona a alguien]
 ╚════════════════════════════╝
    
 ╔═══💥≪ 𝙏𝙊𝙊𝙇𝙎 ≫⛩️═══╗
