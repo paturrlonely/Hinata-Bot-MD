@@ -60,6 +60,8 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .pinterest ✨ — Imagen random
 ┃ ✦ .promote 💥 _ pone a un usuario de admin👑
 ┃ ✦ .quitaradmin ⚡_ quita a alguien de admin
+┃ ✦ .fantasmas ⚡ - Menciona alos que no escriben en el grupo 
+┃ ✦ .kickfantasmas 👑 - Elemina alos que no escriben en el grupo
 ╚════════════════════════════╝
 ╭─❖ 🌌 *Descargas de IA* 🌌 ❖─╮
 │ 🔹 .pollinations – Generador IA de imágenes
