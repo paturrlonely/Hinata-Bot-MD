@@ -1,65 +1,36 @@
-import fs from 'fs'
+import { WAMessageStubType } from '@whiskeysockets/baileys'
 import fetch from 'node-fetch'
 
-let handler = async (m, { conn }) => {}
+export async function before(m, { conn, participants, groupMetadata }) {
+  if (!m.messageStubType || !m.isGroup) return true
 
-handler.customPrefix = /.+/
-handler.command = new RegExp
+  let who = m.messageStubParameters[0]
+  let taguser = `@${who.split('@')[0]}`
+  let chat = global.db.data.chats[m.chat]
+  let defaultImage = 'https://cdnmega.vercel.app/media/gsw1gLhC@ew68pKDxFue1JI_z7IgeAiR61Swwz5QS0aChvcZM9CI';
 
-handler.all = async function ({ conn, m }) {
-  if (!m.isGroup) return
-  const groupMetadata = await conn.groupMetadata(m.chat)
-  const participants = m.participants || []
-
-  const hinataImage = 'https://d.uguu.se/canPsoUp.jpg'
-
-  for (let user of participants) {
+  if (chat.welcome) {
+    let img;
     try {
-      let name = (await conn.getName(user)) || user.split('@')[0]
+      let pp = await conn.profilePictureUrl(who, 'image');
+      img = await (await fetch(pp)).buffer();
+    } catch {
+      img = await (await fetch(defaultImage)).buffer();
+    }
 
-      if (m.action === 'add') {
-        let text = `╔═══🌸 𝐇𝐢𝐧𝐚𝐭𝐚 𝐁𝐨𝐭 𝐬𝐞 𝐦𝐚𝐧𝐢𝐟𝐢𝐞𝐬𝐭𝐚 🌸═══╗
+  const welcomeMessage = global.db.data.chats[m.chat]?.welcomeMessage || 'Bienvenido/a :';
 
-✨ Hola hola, @${user.split('@')[0]}~  
-💕 Bienvenido/a a *${groupMetadata.subject}*
+    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+    let bienvenida = `┏╼★${textbot}\n┋「 Bienvenido 」\n┗╼★ 「 @${m.messageStubParameters[0].split`@`[0]} 」\n ┋❖ ${welcomeMessage}\n ┋❀  ${groupMetadata.subject}\n ┗━━━━━━━━━━━━━━━┅ ⳹\n> ✐ Puedes usar *#profile* para ver tu perfil.`
+      await conn.sendMessage(m.chat, { image: img, caption: bienvenida, mentions: [who] }, { quoted: estilo })
+    } else if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
 
-🍡 Soy *Hinata Bot* y estoy feliz de tenerte aquí~  
-Disfruta tu estancia, ne~ 🥰
+const despMessage = global.db.data.chats[m.chat]?.despMessage || 'Se Fue😹';
 
-🖼 Imagen mágica ➤ ${hinataImage}
-
-╚════════════════════╝`
-
-        await conn.sendMessage(m.chat, {
-          image: { url: hinataImage },
-          caption: text,
-          mentions: [user]
-        })
-
-      } else if (m.action === 'remove') {
-        let text = `╔═══💢 𝐇𝐢𝐧𝐚𝐭𝐚 𝐁𝐨𝐭 𝐬𝐞 𝐜𝐚𝐛𝐫𝐞𝐚 💢═══╗
-
-🚪 @${user.split('@')[0]} se largó de *${groupMetadata.subject}*...
-
-🗣 ¡¿Y a quién ch*ngados le importa?!  
-💩 Nadie te va a extrañar, pinche ridícul@.
-
-👉 No regreses, que nadie te llamó 😒
-
-🖼 Imagen de desprecio ➤ ${hinataImage}
-
-╚════════════════════╝`
-
-        await conn.sendMessage(m.chat, {
-          image: { url: hinataImage },
-          caption: text,
-          mentions: [user]
-        })
-      }
-    } catch (e) {
-      console.error('❌ Error en welcome/despedida:', e)
+     let bye = `┏╼★${textbot}\n┋「 ADIOS 👋 」\n┗╼★ 「 @${m.messageStubParameters[0].split`@`[0]} 」\n ┋❖ ${despMessage}\n ┋❀ Jamás te quisimos aquí\n ┗━━━━━━━━━━━━━━━┅ ⳹\n> ${dev}`
+      await conn.sendMessage(m.chat, { image: img, caption: bye, mentions: [who] }, { quoted: estilo })
     }
   }
-}
 
-export default handler
+  return true
+}
