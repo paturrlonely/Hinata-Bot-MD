@@ -1,43 +1,81 @@
-// 🌸 Comando Hinata Bot – Inactivos + Kick Fantasmas
-// 🔧 Creado por TOKIO5025 – https://github.com/TOKIO5025
+// 💖 Comandos .fantasmas y .kickfantasmas – Hinata Bot 💋
+// 🛠️ Creado por TOKIO5025 – github.com/TOKIO5025
 
-let handler = async (m, { conn, participants, groupMetadata, isAdmin, isBotAdmin, command }) => {
-  if (!m.isGroup) throw '🌺 Este comando solo funciona en grupos, ¡tontito!~';
-  if (!isAdmin) throw '🌸 Solo los *admins guapos* pueden usar este comando 💋';
-  if (!isBotAdmin) throw '💢 ¡Hazme admin para poder sacar fantasmas, baka! 😤';
+let handler = async (m, { conn, participants, isAdmin, isBotAdmin, command }) => {
+  if (!m.isGroup) throw '🌸 Este comando solo funciona en grupos, tontito~ 💞';
 
-  const group = groupMetadata.id;
-  const miembros = participants.map(p => p.id).filter(v => v !== conn.user.jid);
-  const chats = await conn.loadMessages(group, 500);
-  const activos = new Set(chats.map(chat => chat.key.participant));
-  const fantasmas = miembros.filter(id => !activos.has(id));
+  const mensajes = global.db.data?.messages || {};
+  const miembros = participants.map(p => p.id).filter(id => id !== conn.user.jid);
+  const activos = miembros.filter(id => mensajes[m.chat] && mensajes[m.chat][id]);
+  const fantasmas = miembros.filter(id => !activos.includes(id));
 
-  if (command === 'inactivos') {
-    let texto = `╭─❀「 *👻 Miembros Fantasmas* 」\n`;
-    for (let i = 0; i < fantasmas.length; i++) {
-      texto += `│ ✦ @${fantasmas[i].split('@')[0]}\n`;
+  // 📌 SI NO ES ADMIN
+  if (!isAdmin) {
+    await conn.sendMessage(m.chat, { react: { text: '😝', key: m.key }});
+    return conn.reply(m.chat, `╭─💋 *Hinata-chan dice...* 💋─➤
+│
+│  🥺 Unichan... este comando es solo
+│  para mis bellos *administradores* 💖
+│
+│  Anda, quédate aquí y mírame mimarte~ 😚
+╰─────────────🌸`, m);
+  }
+
+  // 📌 SI ES .fantasmas
+  if (command === 'fantasmas') {
+    await conn.sendMessage(m.chat, { react: { text: '👻', key: m.key }});
+
+    if (fantasmas.length === 0) {
+      return m.reply(`╭─🌟 *Hinata Bot* 🌟─➤
+│
+│  UwU~ ¡Todos han hablado! 💕
+│  Qué grupo tan activo y lindo~ ✨
+╰─────────────🌸`);
     }
-    texto += `╰─✿ Total: *${fantasmas.length}* que no dicen ni *mu~*`;
+
+    let texto = `╭──🌙 *Fantasmitas Detectados* 👻\n│\n│  Awww... estos unis no han dicho nada~ 🥺\n│  ¿Les doy un abracito para que hablen? 😳💗\n│\n`;
+
+    for (let user of fantasmas) {
+      texto += `│  ✦ @${user.split('@')[0]}\n`;
+    }
+
+    texto += `│\n╰─✨ Total: *${fantasmas.length}* fantasmitas calladitos~ 💫`;
+
     return conn.sendMessage(m.chat, { text: texto, mentions: fantasmas }, { quoted: m });
   }
 
+  // 📌 SI ES .kickfantasmas
   if (command === 'kickfantasmas') {
-    if (fantasmas.length === 0) return m.reply('✨ Todos están activos, ¡qué bonito grupo!~ 💕');
+    if (!isBotAdmin) {
+      return m.reply('🙁 Hinata no puede sacar a nadie si no soy admin del grupo, uniii~ 😢');
+    }
 
-    m.reply(`🔪 Eliminando a ${fantasmas.length} fantasmitas... ¡Bye bye~! 😘`);
+    await conn.sendMessage(m.chat, { react: { text: '💘', key: m.key }});
+
+    if (fantasmas.length === 0) {
+      return m.reply(`╭─🌟 *Hinata Bot* 🌟─➤
+│
+│  Todos han hablado 🥰
+│  ¡No hay fantasmitas para sacar~! ✨
+╰─────────────🌸`);
+    }
+
+    await conn.reply(m.chat, `╭──💘 *Hinata-chan en modo traviesa* 💘\n│\n│  Bye bye fantasmitas~ 😚\n│  Los saco con amor porque no hablan uwu~\n│\n╰─✨ Total a eliminar: *${fantasmas.length}*`, m);
+
     for (let id of fantasmas) {
       try {
         await conn.groupParticipantsUpdate(m.chat, [id], 'remove');
-        await new Promise(resolve => setTimeout(resolve, 1500)); // 🛡️ Anti-baneo
-      } catch (err) {
-        m.reply(`❌ No pude sacar a @${id.split('@')[0]}... quizás es admin 😶`, null, { mentions: [id] });
+        await new Promise(resolve => setTimeout(resolve, 1500)); // anti-baneo
+      } catch (e) {
+        await m.reply(`❌ No pude sacar a @${id.split('@')[0]}... creo que tiene protección divina 💔`, null, {
+          mentions: [id]
+        });
       }
     }
   }
 };
 
-handler.command = /^(inactivos|kickfantasmas)$/i;
+handler.command = /^fantasmas|kickfantasmas$/i;
 handler.group = true;
-handler.admin = true;
 
 export default handler;
