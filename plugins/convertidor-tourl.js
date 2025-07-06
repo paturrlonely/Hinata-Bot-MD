@@ -24,10 +24,10 @@ await m.react(done)
 } catch {
 await m.react(error)
 }}
-handler.help = ['tourl2']
+handler.help = ['tourl']
 handler.tags = ['transformador']
 handler.register = true
-handler.command = ['tourl2', 'upload']
+handler.command = ['tourl', 'upload']
 
 export default handler
 
