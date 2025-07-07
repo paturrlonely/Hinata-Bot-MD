@@ -18,14 +18,18 @@ let handler = async (m) => {
     await execPromise(`git clone --depth=1 --branch ${REPO_BRANCH} ${REPO_URL} ./tmp-repo`);
 
     const { stdout: diffOutput } = await execPromise(`diff -qr ./tmp-repo ./ | grep -vE ".git|node_modules" || true`);
+
+    // Si no hay cambios, avisar
     if (!diffOutput.trim()) {
       await execPromise('rm -rf ./tmp-repo');
       return m.reply('✅ El bot ya está actualizado. No se encontraron cambios.');
     }
 
+    // Copiar archivos nuevos/modificados
     await execPromise('cp -ru ./tmp-repo/* ./');
     await execPromise('rm -rf ./tmp-repo');
 
+    // Ignorar carpetas y archivos basura
     const ignorar = ['hinata-SubBots', '.cache', '.npm', 'Thumbs.db', 'tmp-repo'];
 
     const cambiosFiltrados = diffOutput
@@ -34,21 +38,26 @@ let handler = async (m) => {
       .map(line => {
         if (line.startsWith('Files')) {
           const partes = line.split(' and ');
-          const archivo = partes[0].replace('Files ', '').trim();
-          return `📄 Modificado: ${archivo.replace('./tmp-repo/', '')}`;
+          const archivo = partes[0].replace('Files ', '').trim().replace('./tmp-repo/', '');
+          return `📄 Modificado: ${archivo}`;
         } else if (line.startsWith('Only in')) {
           const match = line.match(/Only in\s+(.+?):\s+(.+)/);
           if (match) {
-            const nombre = match[2].trim();
-            return `🆕 Agregado: ${nombre}`;
+            const archivo = match[2].trim();
+            return `🆕 Agregado: ${archivo}`;
           }
         }
         return null;
       })
       .filter(Boolean);
 
-    const resumen = cambiosFiltrados.length ? cambiosFiltrados.join('\n') : 'Sin cambios relevantes.';
+    // Si después del filtro no queda nada, decir que no hay cambios
+    if (!cambiosFiltrados.length) {
+      return m.reply('✅ El bot ya está actualizado. No se encontraron cambios relevantes.');
+    }
 
+    // Mostrar resultado
+    const resumen = cambiosFiltrados.join('\n');
     await m.reply(`✅ *Actualización completada*\n\n📋 *Cambios detectados:*\n${resumen}`);
 
   } catch (e) {
