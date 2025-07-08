@@ -1,20 +1,13 @@
 import fs from 'fs';
 
-const filePath = './personalize.json';
-
 let handler = async (m, { conn }) => {
     try {
-        const data = JSON.parse(fs.readFileSync(filePath));
-
-        // Cargar datos globales y predeterminados
-        const globalConfig = data.global;
-        const defaultConfig = data.default;
-
-        const botName = globalConfig.botName || defaultConfig.botName;
-        const currency = globalConfig.currency || defaultConfig.currency;
-        const videos = globalConfig.videos.length > 0 ? globalConfig.videos : defaultConfig.videos;
-
-        const randomVideoUrl = videos[Math.floor(Math.random() * videos.length)];
+        const botName = 'Hinata-Bot';
+        const currency = '¥';
+        const videoUrl = 'https://o.uguu.se/OPPikcEx.mp4';
+        const vs = '1.0.0';
+        const dev = 'NeoTokyo Beats';
+        const copy = '🔧 Sistema personalizado';
 
         const menuMessage = `
 ╔══🎀══════════════════╗
@@ -29,11 +22,11 @@ let handler = async (m, { conn }) => {
 ┃ Aquí tienes la lista de comandos
 ┗━━༺💬༻━━┛
 
-💴 𝙈𝙤𝙣𝙚𝙙𝙖 𝙖𝙘𝙩𝙪𝙖𝙡: ¥ ${currency}
+💴 𝙈𝙤𝙣𝙚𝙙𝙖 𝙖𝙘𝙩𝙪𝙖𝙡: ${currency}
 📢 Más información y novedades:
 🔗 https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A
 
- ╔═══❖🌟❖═══╗
+╔═══❖🌟❖═══╗
 ┃  👑 𝙎𝙊𝙇𝙊 𝘾𝙍𝙀𝘼𝘿𝙊𝙍 
 ╚═══❖🌟❖═══╝
 ✿ .cambiarnombreBot ✏️  — Cambia el nombre del bot  
@@ -58,15 +51,7 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .ping 📍 — Latencia del bot
 ┃ ✦ .gemini 🔍 — Buscar con Gemini
 ┃ ✦ .pinterest ✨ — Imagen random
-┃ ✦ .promote 💥 _ pone a un usuario de admin👑
-┃ ✦ .quitaradmin ⚡_ quita a alguien de admin
-┃ ✦ .fantasmas ⚡ - Menciona alos que no escriben en el grupo 
-┃ ✦ .kickfantasmas 👑 - Elemina alos que no escriben en el grupo
 ╚════════════════════════════╝
-╭─❖ 🌌 *Descargas de IA* 🌌 ❖─╮
-│ 🔹 .pollinations – Generador IA de imágenes
-│ 🔹 .imgia -Genera imagenes de cualquier nombre 
-╰────────────────────────────╯
 
 ╔═══🎲≪ 𝙍𝘼𝙉𝘿𝙊𝙈 ≫🎲═══╗
 ┃ 🎲 Comandos aleatorios y waifus
@@ -87,13 +72,11 @@ let handler = async (m, { conn }) => {
 ┃ ✧ .playaudio ➩ (audio) 🎶
 ┃ ✧ .ytmp4 ➩ (video) 🎬
 ┃ ✧ .tt ➩ .tiktok ➩ TikTok 🎞️
-┃ ✧ .tiktokmp3   descarga audio🎵de tiktok
+┃ ✧ .tiktokmp3 — Audio de TikTok 🎵
 ┃ ✧ .sp ➩ .spotify ➩ Spotify 🎧
 ┃ ✧ .tksearch 
 ┃ ✧ .tourl .tourl2
 ┃ ✧ .tourl3 .upload
-┃ ✧ .mediafire
-┃ ✧ .stickerly
 ╚═══════════════════════════╝
 
 ╔═══🎰≪ 𝙀𝘾𝙊𝙉𝙊𝙈𝙄𝘼 ≫🎰═══╗
@@ -127,20 +110,16 @@ let handler = async (m, { conn }) => {
 ┃ ♡ .bofetada 🖐️ — ¡Toma esto!
 ┃ ♡ .dormir 🛌🏻 — Zzz... durmiendo~
 ┃ ♡ .smoke 🚬 — Fumando con estilo
-┃ ♡ .chaqueteame 🥵 - aste tu paja
 ┃ ♡ .paja 🍆 — 🔞 [reacción subida de tono]
-┃ ♡ .top  💥 — 🔞 [menciona a alguien]
 ╚════════════════════════════╝
-   
+
 ╔═══💥≪ 𝙏𝙊𝙊𝙇𝙎 ≫⛩️═══╗
 ┃ 🧰 Cosas divertidas y cool
-┃ ✦ .ver — Reacciona a una imagen/video/audio de "ver una vez" 👁️‍🗨️
+┃ ✦ .ver — Reacciona a contenido "ver una vez" 👁️‍🗨️
 ┃ ✦ .get — Descarga estados de WhatsApp 📥
-┃ ✦ .subirver — Sube contenido como "ver una vez" 🔁
-┃ ✦ .rpf — Roba foto de perfil Del usuario
-┃ ✦ .rpf2 — Roba foto de perfil Del usuario y nombre 
-┃ ✦ .sit -descarga sitios web de mp4 o busca información de sitios
-┃ ✦ .gettext -se reivia un mensaje si tu lo respondes
+┃ ✦ .subirver — Sube como "ver una vez" 🔁
+┃ ✦ .rpf — Roba foto de perfil
+┃ ✦ .rpf2 — Roba perfil y nombre
 ╚═════════════════════════╝
 
 ╔════ ≪ ✨ ≫ ════╗
@@ -148,21 +127,17 @@ let handler = async (m, { conn }) => {
 │❀ .update ⭕
 │❀ .dsowner ➩ .purgar 🗑️
 │❀ .join 💎
-│❀ .salir 
 ╚════ ≪ ✨ ≫ ════╝
 
 > ${copy} Hecho con mucho amor por ${dev}
 `;
 
-        await conn.sendMessage(
-            m.chat,
-            {
-                video: { url: randomVideoUrl },
-                gifPlayback: true,
-                caption: menuMessage,
-                mentions: [m.sender]
-            }
-        );
+        await conn.sendMessage(m.chat, {
+            video: { url: videoUrl },
+            caption: menuMessage,
+            mentions: [m.sender]
+            // No uses gifPlayback si quieres que suene el video
+        });
     } catch (error) {
         conn.reply(m.chat, `❌ Error al cargar el menú: ${error.message}`, m);
     }
@@ -173,9 +148,3 @@ handler.tags = ['info'];
 handler.command = ['menu', 'help'];
 
 export default handler;
-
-/* estilos de menu
-
-┎───•✧•───⌬
-┃
-┖───•✧•  */
