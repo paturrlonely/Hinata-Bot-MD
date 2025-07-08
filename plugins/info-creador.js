@@ -3,8 +3,6 @@ import fetch from 'node-fetch';
 let handler = async (m, { conn, usedPrefix, text, args, command }) => {
    await m.react('🎩');
 
-    let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender;
-    let name = await conn.getName(who);
     let username = await conn.getName(m.sender);
 
     // Vcard info con tu número
@@ -24,6 +22,7 @@ item4.X-ABLabel:Región
 END:VCARD`,
     }];
 
+    // Envía la vCard
     await conn.sendMessage(m.chat, {
         contacts: {
             displayName: `${list.length} Contacto`,
@@ -42,8 +41,13 @@ END:VCARD`,
         }
     }, { quoted: m });
 
-    let txt = `👋 Hola, *${username}* ✨\n\nEste es el contacto de mi creador: *🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲*.\nSi quieres contactarlo, aquí tienes su info 💖`;
+    // Texto coqueto y personalizado solo para el que escribe el comando
+    let txt = `👋 Hola, *@${m.sender.split('@')[0]}* ✨
 
+Este es el contacto de mi creador: *🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲*.
+Si quieres contactarlo, aquí tienes su info 💖`;
+
+    // Botones: uno para el canal, otro para cerrar
     let buttons = [
         { urlButton: { displayText: '🌟 Seguir mi canal', url: 'https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A' } },
         { quickReplyButton: { displayText: '❌ Cerrar', id: 'close' } }
@@ -53,11 +57,12 @@ END:VCARD`,
         text: txt,
         footer: '🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲',
         buttons: buttons,
-        headerType: 1
+        headerType: 1,
+        mentions: [m.sender]
     }, { quoted: m });
 };
 
-handler.help = ['owner', 'creator'];
+handler.help = ['owner', 'creator', 'creador', 'dueño'];
 handler.tags = ['main'];
 handler.command = /^(owner|creator|creador|dueño)$/i;
 
