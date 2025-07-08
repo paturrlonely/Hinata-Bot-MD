@@ -8,9 +8,9 @@ const defaultData = {
         botName: "HINATA-BOT⚡",
         currency: "𝙔𝙚𝙣𝙚𝙨💴",
         videos: [
-            "https://files.catbox.moe/2y26pq.mp4",
-            "https://files.catbox.moe/2y26pq.mp4",
-            "https://files.catbox.moe/2y26pq.mp4"
+            "https://o.uguu.se/OPPikcEx.mp4",
+            "https://o.uguu.se/OPPikcEx.mp4",
+            "https://o.uguu.se/OPPikcEx.mp4"
         ]
     },
     global: {
